@@ -1,0 +1,62 @@
+const API_BASE_URL = import.meta.env.VITE_API_URL?.replace(/\/$/, '') || 'http://localhost:4000/api';
+
+const defaultHeaders = { 'Content-Type': 'application/json' };
+
+const handleResponse = async (response) => {
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    // Si el token expiró (401), cerrar sesión automáticamente
+    if (response.status === 401) {
+      console.log('🔒 Token expirado, cerrando sesión...');
+      localStorage.removeItem('imparables-auth');
+      // Redirigir al login
+      window.location.href = '/admin/login';
+      throw new Error('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.');
+    }
+    const message = data?.message || 'Error al comunicarse con el servidor';
+    throw new Error(message);
+  }
+  return data;
+};
+
+const buildOptions = (options = {}) => ({
+  ...options,
+  headers: {
+    ...defaultHeaders,
+    ...(options.headers || {}),
+  },
+});
+
+export const getPosts = () => fetch(`${API_BASE_URL}/posts`).then(handleResponse);
+
+export const login = ({ email, password }) =>
+  fetch(`${API_BASE_URL}/auth/login`, buildOptions({
+    method: 'POST',
+    body: JSON.stringify({ email, password }),
+  })).then(handleResponse);
+
+export const createPost = (payload, token) =>
+  fetch(`${API_BASE_URL}/posts`, buildOptions({
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(payload),
+  })).then(handleResponse);
+
+export const updatePost = (id, payload, token) =>
+  fetch(`${API_BASE_URL}/posts/${id}`, buildOptions({
+    method: 'PUT',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(payload),
+  })).then(handleResponse);
+
+export const deletePost = (id, token) =>
+  fetch(`${API_BASE_URL}/posts/${id}`, buildOptions({
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })).then(handleResponse);

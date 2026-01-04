@@ -1,0 +1,32 @@
+[
+  {
+    "id": "seed-1",
+    "title": "Tecnologías que alzan la voz",
+    "category": "Innovación feminista",
+    "date": "2025-10-01T00:00:00.000Z",
+    "excerpt": "Desde el Pacífico creamos bots sororos para denunciar violencias digitales y acompañar a las víctimas en tiempo real.",
+    "image": "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=60",
+    "createdAt": "2025-10-01T00:00:00.000Z",
+    "updatedAt": "2025-10-01T00:00:00.000Z"
+  },
+  {
+    "id": "seed-2",
+    "title": "Guardianas del territorio",
+    "category": "Comunidades",
+    "date": "2025-09-01T00:00:00.000Z",
+    "excerpt": "Las mujeres de la comunidad Wounaan lideran procesos de reforestación y soberanía alimentaria con apoyo Imparable.",
+    "image": "https://images.unsplash.com/photo-1509099836639-18ba1795216d?auto=format&fit=crop&w=900&q=60",
+    "createdAt": "2025-09-01T00:00:00.000Z",
+    "updatedAt": "2025-09-01T00:00:00.000Z"
+  },
+  {
+    "id": "seed-3",
+    "title": "Festival Ahora Todas",
+    "category": "Cultura viva",
+    "date": "2025-08-01T00:00:00.000Z",
+    "excerpt": "Más de 500 juventudes afro, indígenas y mestizas se encontraron para co-crear un pacto por la vida libre de violencias.",
+    "image": "https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=900&q=60",
+    "createdAt": "2025-08-01T00:00:00.000Z",
+    "updatedAt": "2025-08-01T00:00:00.000Z"
+  }
+]
