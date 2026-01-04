@@ -64,7 +64,7 @@ app.use((err, _req, res, _next) => {
   res.status(status).json({ message: err.message || 'Error interno del servidor' });
 });
 
-app.listen(PORT, async () => {
-  console.log(`API de Imparables escuchando en http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0', async () => {
+  console.log(`API de Imparables escuchando en el puerto ${PORT}`);
   await bootstrapAdmin();
 });
