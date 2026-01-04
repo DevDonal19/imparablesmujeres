@@ -21,6 +21,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import PersonIcon from '@mui/icons-material/Person';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import useLocalStorage from '../hooks/useLocalStorage';
+import { apiFetch } from '../utils/api';
 
 const AdminTestimonials = () => {
   const [auth] = useLocalStorage('imparables-auth', null);
@@ -35,7 +36,7 @@ const AdminTestimonials = () => {
 
   const loadTestimonials = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/testimonials`, {
+      const response = await apiFetch('/testimonials', {
         headers: {
           Authorization: `Bearer ${auth?.token}`,
         },
@@ -58,7 +59,7 @@ const AdminTestimonials = () => {
 
   const handleApprove = async (id) => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/testimonials/${id}/approve`, {
+      const response = await apiFetch(`/testimonials/${id}/approve`, {
         method: 'PUT',
         headers: {
           Authorization: `Bearer ${auth?.token}`,
@@ -83,7 +84,7 @@ const AdminTestimonials = () => {
     if (!deleteTarget) return;
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/testimonials/${deleteTarget}`, {
+      const response = await apiFetch(`/testimonials/${deleteTarget}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${auth?.token}`,

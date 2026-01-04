@@ -4,6 +4,7 @@ import { styled } from '@mui/material/styles';
 import { motion } from 'framer-motion';
 import usePrefersReducedMotion from '../hooks/usePrefersReducedMotion';
 import { getAssetUrl } from '../utils/assets';
+import { apiFetch } from '../utils/api';
 
 const defaultDollImage = getAssetUrl('doll-imparables.png');
 
@@ -69,7 +70,7 @@ const Hero = () => {
   useEffect(() => {
     const loadHeroData = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/sections`);
+        const response = await apiFetch('/sections');
         if (response.ok) {
           const data = await response.json();
           const heroSection = data.find(s => s.section === 'hero');

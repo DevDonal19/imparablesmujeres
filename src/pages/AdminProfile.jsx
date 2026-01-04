@@ -25,6 +25,7 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import VerifiedUserIcon from '@mui/icons-material/VerifiedUser';
 import useLocalStorage from '../hooks/useLocalStorage';
+import { apiFetch } from '../utils/api';
 
 const AdminProfile = () => {
   const [auth, setAuth] = useLocalStorage('imparables-auth', null);
@@ -97,7 +98,7 @@ const AdminProfile = () => {
       console.log('👤 Profile Update - Sending:', body);
       console.log('👤 Profile Update - Token:', auth?.token ? 'Present' : 'Missing');
       
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/users/profile/me`, {
+      const response = await apiFetch('/users/profile/me', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

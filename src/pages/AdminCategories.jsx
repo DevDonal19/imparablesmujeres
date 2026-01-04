@@ -99,9 +99,8 @@ const AdminCategories = () => {
     e.preventDefault();
     
     try {
-      const url = selectedCategory
-        ? `${import.meta.env.VITE_API_URL}/categories/${selectedCategory.id}`
-        : `${import.meta.env.VITE_API_URL}/categories`;
+      const path = selectedCategory ? `/categories/${selectedCategory.id}` : '/categories';
+      const url = getApiUrl(path);
       
       const method = selectedCategory ? 'PUT' : 'POST';
 
@@ -141,7 +140,7 @@ const AdminCategories = () => {
 
   const handleDelete = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/categories/${selectedCategory.id}`, {
+      const response = await apiFetch(`/categories/${selectedCategory.id}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${auth?.token}`,

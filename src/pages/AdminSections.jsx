@@ -25,6 +25,7 @@ import WorkIcon from '@mui/icons-material/Work';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import useLocalStorage from '../hooks/useLocalStorage';
+import { apiFetch } from '../utils/api';
 
 const AdminSections = () => {
   const [auth] = useLocalStorage('imparables-auth', null);
@@ -40,7 +41,7 @@ const AdminSections = () => {
 
   const loadSections = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/sections`);
+      const response = await apiFetch('/sections');
       if (response.ok) {
         const data = await response.json();
         console.log('Secciones cargadas:', data);
@@ -63,7 +64,7 @@ const AdminSections = () => {
   const handleSave = async (sectionName, content) => {
     setSaving(true);
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/sections/${sectionName}`, {
+      const response = await apiFetch(`/sections/${sectionName}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

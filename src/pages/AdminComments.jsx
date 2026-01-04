@@ -26,6 +26,7 @@ import EmailIcon from '@mui/icons-material/Email';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import ArticleIcon from '@mui/icons-material/Article';
 import useLocalStorage from '../hooks/useLocalStorage';
+import { apiFetch } from '../utils/api';
 
 const AdminComments = () => {
   const [auth] = useLocalStorage('imparables-auth', null);
@@ -42,7 +43,7 @@ const AdminComments = () => {
 
   const loadComments = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/comments/pending`, {
+      const response = await apiFetch('/comments/pending', {
         headers: {
           'Authorization': `Bearer ${auth?.token}`,
         },
@@ -61,7 +62,7 @@ const AdminComments = () => {
 
   const loadPosts = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/posts`);
+      const response = await apiFetch('/posts');
       if (response.ok) {
         const data = await response.json();
         const postsMap = {};
@@ -77,7 +78,7 @@ const AdminComments = () => {
 
   const handleApprove = async (commentId) => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/comments/${commentId}/approve`, {
+      const response = await apiFetch(`/comments/${commentId}/approve`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${auth?.token}`,
@@ -104,7 +105,7 @@ const AdminComments = () => {
 
   const handleDelete = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/comments/${deleteDialog.commentId}`, {
+      const response = await apiFetch(`/comments/${deleteDialog.commentId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${auth?.token}`,

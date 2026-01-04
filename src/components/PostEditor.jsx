@@ -20,6 +20,7 @@ import 'react-quill/dist/quill.snow.css';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import DeleteIcon from '@mui/icons-material/Delete';
 import SaveIcon from '@mui/icons-material/Save';
+import { apiFetch, getAbsoluteUrl } from '../utils/api';
 
 const PostEditor = ({ open, onClose, post, onSave, saving }) => {
   const [formData, setFormData] = useState({
@@ -56,7 +57,7 @@ const PostEditor = ({ open, onClose, post, onSave, saving }) => {
 
   const loadCategories = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/categories`);
+      const response = await apiFetch('/categories');
       if (response.ok) {
         const data = await response.json();
         setCategories(data);
@@ -93,7 +94,7 @@ const PostEditor = ({ open, onClose, post, onSave, saving }) => {
       const formDataUpload = new FormData();
       formDataUpload.append('image', file);
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/upload`, {
+      const response = await apiFetch('/upload', {
         method: 'POST',
         body: formDataUpload,
       });
@@ -101,7 +102,7 @@ const PostEditor = ({ open, onClose, post, onSave, saving }) => {
       if (response.ok) {
         const data = await response.json();
         // Construir URL completa
-        const imageUrl = `${import.meta.env.VITE_API_URL.replace('/api', '')}${data.url}`;
+        const imageUrl = getAbsoluteUrl(data.url);
         setFormData({ ...formData, image: imageUrl });
       } else {
         setUploadError('Error al subir la imagen');

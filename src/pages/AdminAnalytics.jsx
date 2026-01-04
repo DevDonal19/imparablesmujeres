@@ -25,6 +25,7 @@ import EmailIcon from '@mui/icons-material/Email';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import useLocalStorage from '../hooks/useLocalStorage';
+import { apiFetch } from '../utils/api';
 
 const AdminAnalytics = () => {
   const [auth] = useLocalStorage('imparables-auth', null);
@@ -46,11 +47,11 @@ const AdminAnalytics = () => {
     setLoading(true);
     try {
       // Cargar publicaciones
-      const postsResponse = await fetch(`${import.meta.env.VITE_API_URL}/posts`);
+      const postsResponse = await apiFetch('/posts');
       const posts = postsResponse.ok ? await postsResponse.json() : [];
 
       // Cargar usuarios
-      const usersResponse = await fetch(`${import.meta.env.VITE_API_URL}/users`, {
+      const usersResponse = await apiFetch('/users', {
         headers: {
           Authorization: `Bearer ${auth?.token}`,
         },
@@ -58,7 +59,7 @@ const AdminAnalytics = () => {
       const users = usersResponse.ok ? await usersResponse.json() : [];
 
       // Cargar contactos
-      const contactsResponse = await fetch(`${import.meta.env.VITE_API_URL}/contact`, {
+      const contactsResponse = await apiFetch('/contact', {
         headers: {
           Authorization: `Bearer ${auth?.token}`,
         },

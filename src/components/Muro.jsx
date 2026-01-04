@@ -21,9 +21,9 @@ import CampaignIcon from '@mui/icons-material/Campaign';
 import CloseIcon from '@mui/icons-material/Close';
 import { styled } from '@mui/material/styles';
 import { motion } from 'framer-motion';
-import useLocalStorage from '../hooks/useLocalStorage';
 import usePrefersReducedMotion from '../hooks/usePrefersReducedMotion';
 import { getAssetUrl } from '../utils/assets';
+import { apiFetch } from '../utils/api';
 
 const StickerButton = styled(ButtonBase)(({ theme }) => ({
   position: 'absolute',
@@ -118,7 +118,7 @@ const Muro = () => {
 
   const loadTestimonials = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/testimonials/approved`);
+      const response = await apiFetch('/testimonials/approved');
       if (response.ok) {
         const data = await response.json();
         const sanitized = data.map((item) => ({
@@ -150,10 +150,10 @@ const Muro = () => {
 
     setLoading(true);
     try {
-      console.log('📤 Enviando testimonio a:', `${import.meta.env.VITE_API_URL}/testimonials`);
+      console.log('📤 Enviando testimonio a:/testimonials');
       console.log('📝 Datos:', { name: form.nombre.trim(), message: form.mensaje.trim() });
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/testimonials`, {
+      const response = await apiFetch('/testimonials', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

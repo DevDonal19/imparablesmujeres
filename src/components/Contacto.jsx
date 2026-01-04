@@ -20,6 +20,7 @@ import MusicNoteIcon from '@mui/icons-material/MusicNote';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import EmailIcon from '@mui/icons-material/Email';
 import SendIcon from '@mui/icons-material/Send';
+import { apiFetch } from '../utils/api';
 
 const socialLinks = [
   { label: 'Facebook', icon: <FacebookIcon />, href: 'https://facebook.com', color: '#1877F2' },
@@ -40,7 +41,7 @@ const Contacto = () => {
     event.preventDefault();
     
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/contact`, {
+      const response = await apiFetch('/contact', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
