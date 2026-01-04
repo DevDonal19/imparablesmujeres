@@ -31,11 +31,36 @@ const buildOptions = (options = {}) => ({
 
 export const getPosts = () => fetch(`${API_BASE_URL}/posts`).then(handleResponse);
 
-export const login = ({ email, password }) =>
-  fetch(`${API_BASE_URL}/auth/login`, buildOptions({
+export const login = async ({ email, password }) => {
+  const response = await fetch(`${API_BASE_URL}/auth/login`, {
     method: 'POST',
+    headers: defaultHeaders,
     body: JSON.stringify({ email, password }),
-  })).then(handleResponse);
+  });
+
+  const contentType = response.headers.get('content-type') || '';
+  const isJson = contentType.includes('application/json');
+  let payload = null;
+
+  try {
+    payload = isJson ? await response.json() : await response.text();
+  } catch (_error) {
+    payload = null;
+  }
+
+  if (!response.ok) {
+    const message =
+      (isJson && payload?.message) ||
+      (response.status === 401 ? 'Credenciales inválidas' : 'No se pudo iniciar sesión');
+    throw new Error(message);
+  }
+
+  if (!isJson || !payload?.token) {
+    throw new Error('La API de login devolvió una respuesta no válida');
+  }
+
+  return payload;
+};
 
 export const createPost = (payload, token) =>
   fetch(`${API_BASE_URL}/posts`, buildOptions({
