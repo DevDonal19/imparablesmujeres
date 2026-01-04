@@ -37,6 +37,7 @@ import EmailIcon from '@mui/icons-material/Email';
 import LockIcon from '@mui/icons-material/Lock';
 import VerifiedUserIcon from '@mui/icons-material/VerifiedUser';
 import useLocalStorage from '../hooks/useLocalStorage';
+import { getApiUrl } from '../utils/api';
 
 const ROLES = [
   { value: 'admin', label: 'Administrador', color: 'error' },
@@ -65,9 +66,11 @@ const AdminUsers = () => {
     loadUsers();
   }, []);
 
+  const apiFetch = (path, options) => fetch(getApiUrl(path), options);
+
   const loadUsers = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/users`, {
+      const response = await apiFetch('/users', {
         headers: {
           Authorization: `Bearer ${auth?.token}`,
         },
@@ -117,9 +120,7 @@ const AdminUsers = () => {
     e.preventDefault();
     
     try {
-      const url = selectedUser
-        ? `${import.meta.env.VITE_API_URL}/users/${selectedUser.id}`
-        : `${import.meta.env.VITE_API_URL}/users`;
+      const url = getApiUrl(selectedUser ? `/users/${selectedUser.id}` : '/users');
       
       const method = selectedUser ? 'PUT' : 'POST';
       
@@ -163,7 +164,7 @@ const AdminUsers = () => {
 
   const handleDelete = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/users/${selectedUser.id}`, {
+      const response = await apiFetch(`/users/${selectedUser.id}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${auth?.token}`,

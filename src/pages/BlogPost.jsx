@@ -31,6 +31,7 @@ import CelebrationIcon from '@mui/icons-material/Celebration';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import SendIcon from '@mui/icons-material/Send';
 import CategoryIcon from '@mui/icons-material/Category';
+import { getApiUrl } from '../utils/api';
 
 const REACTIONS = [
   { type: 'like', icon: ThumbUpIcon, label: 'Me gusta', color: '#2196f3' },
@@ -67,9 +68,11 @@ const BlogPost = () => {
     loadReactions();
   }, [id]);
 
+  const apiFetch = (path, options) => fetch(getApiUrl(path), options);
+
   const loadPost = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/posts/${id}`);
+      const response = await apiFetch(`/posts/${id}`);
       if (response.ok) {
         const data = await response.json();
         console.log('📰 Post cargado:', data);
@@ -84,7 +87,7 @@ const BlogPost = () => {
         if (!hasViewed) {
           // Incrementar vista en el backend
           try {
-            await fetch(`${import.meta.env.VITE_API_URL}/posts/${id}/view`, {
+            await apiFetch(`/posts/${id}/view`, {
               method: 'POST',
             });
             // Marcar como visto en localStorage
@@ -97,7 +100,7 @@ const BlogPost = () => {
         }
         
         // Cargar posts relacionados (misma categoría)
-        const allPostsResponse = await fetch(`${import.meta.env.VITE_API_URL}/posts`);
+        const allPostsResponse = await apiFetch('/posts');
         if (allPostsResponse.ok) {
           const allPosts = await allPostsResponse.json();
           const related = allPosts
@@ -115,7 +118,7 @@ const BlogPost = () => {
 
   const loadComments = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/comments/post/${id}`);
+      const response = await apiFetch(`/comments/post/${id}`);
       if (response.ok) {
         const data = await response.json();
         setComments(data);
@@ -127,7 +130,7 @@ const BlogPost = () => {
 
   const loadReactions = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/reactions/post/${id}`);
+      const response = await apiFetch(`/reactions/post/${id}`);
       if (response.ok) {
         const data = await response.json();
         setReactions(data);
@@ -135,8 +138,8 @@ const BlogPost = () => {
       
       // Cargar reacción del usuario
       const userIdentifier = getUserIdentifier();
-      const userReactionResponse = await fetch(
-        `${import.meta.env.VITE_API_URL}/reactions/post/${id}/user/${userIdentifier}`
+      const userReactionResponse = await apiFetch(
+        `/reactions/post/${id}/user/${userIdentifier}`
       );
       if (userReactionResponse.ok) {
         const data = await userReactionResponse.json();
@@ -150,7 +153,7 @@ const BlogPost = () => {
   const handleReaction = async (type) => {
     try {
       const userIdentifier = getUserIdentifier();
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/reactions`, {
+      const response = await apiFetch('/reactions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -175,7 +178,7 @@ const BlogPost = () => {
     setSubmittingComment(true);
     
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/comments`, {
+      const response = await apiFetch('/comments', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

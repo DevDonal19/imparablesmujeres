@@ -33,6 +33,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import CategoryIcon from '@mui/icons-material/Category';
 import ColorLensIcon from '@mui/icons-material/ColorLens';
 import useLocalStorage from '../hooks/useLocalStorage';
+import { getApiUrl } from '../utils/api';
 
 const AdminCategories = () => {
   const [auth] = useLocalStorage('imparables-auth', null);
@@ -51,9 +52,11 @@ const AdminCategories = () => {
     loadCategories();
   }, []);
 
+  const apiFetch = (path, options) => fetch(getApiUrl(path), options);
+
   const loadCategories = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/categories`);
+      const response = await apiFetch('/categories');
       if (response.ok) {
         const data = await response.json();
         setCategories(data);
