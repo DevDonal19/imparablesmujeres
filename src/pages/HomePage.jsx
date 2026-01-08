@@ -41,6 +41,7 @@ import { Alert } from '@mui/material';
 const navLinks = [
   { label: 'Inicio', href: '#inicio' },
   { label: 'Historia', href: '#historia' },
+  { label: 'Fundadoras', href: '#fundadoras' },
   { label: 'Misión y Visión', href: '#mision-vision' },
   { label: 'Servicios', href: '#servicios' },
   { label: 'Testimonios', href: '#muro' },
