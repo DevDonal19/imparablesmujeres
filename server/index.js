@@ -91,23 +91,26 @@ app.use('/api/settings', settingsRoutes);
  * SERVIR FRONTEND (REACT / VITE)
  * ============================
  * dist/ está en la raíz del proyecto
+ * Solo en producción (cuando NODE_ENV === 'production')
  */
 const clientDistPath = path.join(__dirname, '..', 'dist');
 
-app.use(express.static(clientDistPath));
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(clientDistPath));
 
-/**
- * Para cualquier ruta que NO sea /api ni /uploads,
- * devolver index.html (React Router)
- */
-app.get('*', (req, res) => {
-  // Evitar que choque con la API
-  if (req.path.startsWith('/api') || req.path.startsWith('/uploads')) {
-    return res.status(404).json({ message: 'Ruta no encontrada' });
-  }
+  /**
+   * Para cualquier ruta que NO sea /api ni /uploads,
+   * devolver index.html (React Router)
+   */
+  app.get('*', (req, res) => {
+    // Evitar que choque con la API
+    if (req.path.startsWith('/api') || req.path.startsWith('/uploads')) {
+      return res.status(404).json({ message: 'Ruta no encontrada' });
+    }
 
-  res.sendFile(path.join(clientDistPath, 'index.html'));
-});
+    res.sendFile(path.join(clientDistPath, 'index.html'));
+  });
+}
 
 /**
  * Manejador de errores global

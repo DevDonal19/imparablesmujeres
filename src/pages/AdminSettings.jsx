@@ -49,10 +49,12 @@ const AdminSettings = () => {
   const [formValues, setFormValues] = useState(initialState);
   const [saving, setSaving] = useState(false);
   const [feedback, setFeedback] = useState({ open: false, message: '', severity: 'success' });
+  const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
-    if (currentSettings) {
-      setFormValues({
+    console.log('📥 [AdminSettings] currentSettings changed:', currentSettings);
+    if (currentSettings && !isInitialized) {
+      const newFormValues = {
         siteName: currentSettings.siteName,
         siteDescription: currentSettings.siteDescription,
         contactEmail: currentSettings.contactEmail,
@@ -66,9 +68,12 @@ const AdminSettings = () => {
         maintenanceMode: currentSettings.maintenanceMode,
         siteVersion: currentSettings.siteVersion,
         siteStatus: currentSettings.siteStatus,
-      });
+      };
+      console.log('📥 [AdminSettings] Setting form values:', newFormValues);
+      setFormValues(newFormValues);
+      setIsInitialized(true);
     }
-  }, [currentSettings]);
+  }, [currentSettings, isInitialized]);
 
   const handleChange = (field) => (event) => {
     const value = event.target.value;
@@ -91,7 +96,11 @@ const AdminSettings = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log('💾 [AdminSettings] Iniciando guardado...');
+    console.log('💾 [AdminSettings] Auth token exists:', !!auth?.token);
+    
     if (!auth?.token) {
+      console.error('❌ [AdminSettings] No hay token de autenticación');
       setFeedback({
         open: true,
         message: 'Tu sesión expiró. Inicia sesión nuevamente para guardar cambios.',
@@ -107,15 +116,42 @@ const AdminSettings = () => {
         siteStatus: formValues.maintenanceMode ? 'maintenance' : 'active',
         siteVersion: formValues.siteVersion || 'v1.0.0',
       };
-      await updateSiteSettings(payload, auth.token);
+      console.log('💾 [AdminSettings] Payload a enviar:', payload);
+      console.log('💾 [AdminSettings] Token:', auth.token.substring(0, 20) + '...');
+      
+      const result = await updateSiteSettings(payload, auth.token);
+      console.log('✅ [AdminSettings] Respuesta del servidor:', result);
+      
       setFeedback({
         open: true,
         message: 'Configuración guardada exitosamente',
         severity: 'success',
       });
+      
+      // Actualizar los valores del formulario con la respuesta del servidor
+      setFormValues({
+        siteName: result.siteName,
+        siteDescription: result.siteDescription,
+        contactEmail: result.contactEmail,
+        socialFacebook: result.socialFacebook,
+        socialInstagram: result.socialInstagram,
+        socialTiktok: result.socialTiktok,
+        socialWhatsapp: result.socialWhatsapp,
+        enableComments: result.enableComments,
+        enableNewsletter: result.enableNewsletter,
+        enableNotifications: result.enableNotifications,
+        maintenanceMode: result.maintenanceMode,
+        siteVersion: result.siteVersion,
+        siteStatus: result.siteStatus,
+      });
+      
       refresh();
     } catch (err) {
-      console.error('Error guardando configuración:', err);
+      console.error('❌ [AdminSettings] Error guardando configuración:', err);
+      console.error('❌ [AdminSettings] Error completo:', {
+        message: err.message,
+        stack: err.stack,
+      });
       setFeedback({
         open: true,
         message: err.message || 'No se pudo guardar la configuración',

@@ -91,11 +91,21 @@ export const deletePost = (id, token) =>
 export const getSiteSettings = () =>
   fetch(`${API_BASE_URL}/settings`).then(handleResponse);
 
-export const updateSiteSettings = (payload, token) =>
-  fetch(`${API_BASE_URL}/settings`, buildOptions({
+export const updateSiteSettings = async (payload, token) => {
+  console.log('🌐 [API] updateSiteSettings - URL:', `${API_BASE_URL}/settings`);
+  console.log('🌐 [API] updateSiteSettings - Payload:', payload);
+  console.log('🌐 [API] updateSiteSettings - Token:', token ? token.substring(0, 20) + '...' : 'NO TOKEN');
+  
+  const response = await fetch(`${API_BASE_URL}/settings`, buildOptions({
     method: 'PUT',
     headers: {
       Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify(payload),
-  })).then(handleResponse);
+  }));
+  
+  console.log('🌐 [API] updateSiteSettings - Response status:', response.status);
+  console.log('🌐 [API] updateSiteSettings - Response ok:', response.ok);
+  
+  return handleResponse(response);
+};
