@@ -109,3 +109,18 @@ export const updateSiteSettings = async (payload, token) => {
   
   return handleResponse(response);
 };
+
+export const getSections = () =>
+  fetch(`${API_BASE_URL}/sections`).then(handleResponse);
+
+export const getSection = (section) =>
+  fetch(`${API_BASE_URL}/sections/${section}`).then(handleResponse);
+
+export const updateSection = (section, content, token) =>
+  fetch(`${API_BASE_URL}/sections/${section}`, buildOptions({
+    method: 'PUT',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ content }),
+  })).then(handleResponse);

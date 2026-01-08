@@ -22,6 +22,7 @@ import HomeIcon from '@mui/icons-material/Home';
 import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import WorkIcon from '@mui/icons-material/Work';
+import PeopleIcon from '@mui/icons-material/People';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import useLocalStorage from '../hooks/useLocalStorage';
@@ -162,6 +163,7 @@ const AdminSections = () => {
       <Tabs value={activeTab} onChange={(e, newValue) => setActiveTab(newValue)} sx={{ mb: 3 }}>
         <Tab icon={<HomeIcon />} label="Inicio/Hero" />
         <Tab icon={<HistoryEduIcon />} label="Historia" />
+        <Tab icon={<PeopleIcon />} label="Fundadoras" />
         <Tab icon={<VisibilityIcon />} label="Misión y Visión" />
         <Tab icon={<WorkIcon />} label="Servicios" />
       </Tabs>
@@ -322,11 +324,112 @@ const AdminSections = () => {
         </Card>
       )}
 
-      {/* Tab 2: Misión y Visión */}
-      {activeTab === 2 && (!sections.mision || !sections.vision) && (
+      {/* Tab 2: Fundadoras */}
+      {activeTab === 2 && !sections.fundadoras && (
+        <Alert severity="info">No se encontró la sección Fundadoras. Ejecuta las migraciones.</Alert>
+      )}
+      {activeTab === 2 && sections.fundadoras && (
+        <Card component={motion.div} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+          <CardContent sx={{ p: 4 }}>
+            <Typography variant="h5" fontWeight={700} gutterBottom>
+              Sección de Fundadoras
+            </Typography>
+            <Divider sx={{ mb: 3 }} />
+            <Stack spacing={3}>
+              <TextField
+                label="Título de la Sección"
+                fullWidth
+                value={sections.fundadoras.title || ''}
+                onChange={(e) => updateSection('fundadoras', 'title', e.target.value)}
+              />
+              <TextField
+                label="Subtítulo"
+                fullWidth
+                multiline
+                rows={2}
+                value={sections.fundadoras.subtitle || ''}
+                onChange={(e) => updateSection('fundadoras', 'subtitle', e.target.value)}
+                helperText="Texto descriptivo que aparece debajo del título"
+              />
+              
+              <Typography variant="h6" fontWeight={600} mt={2}>
+                Perfiles de Fundadoras
+              </Typography>
+              
+              {sections.fundadoras.fundadoras?.map((fundadora, index) => (
+                <Paper key={index} sx={{ p: 3, bgcolor: 'rgba(159,56,118,0.05)' }}>
+                  <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
+                    <Typography variant="h6" fontWeight={600}>
+                      Fundadora {index + 1}
+                    </Typography>
+                    <IconButton
+                      color="error"
+                      onClick={() => removeArrayItem('fundadoras', 'fundadoras', index)}
+                      disabled={sections.fundadoras.fundadoras.length <= 1}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </Stack>
+                  <Stack spacing={2}>
+                    <TextField
+                      label="Nombre"
+                      fullWidth
+                      value={fundadora.name || ''}
+                      onChange={(e) => updateArrayItem('fundadoras', 'fundadoras', index, 'name', e.target.value)}
+                    />
+                    <TextField
+                      label="Rol / Descripción"
+                      fullWidth
+                      multiline
+                      rows={2}
+                      value={fundadora.role || ''}
+                      onChange={(e) => updateArrayItem('fundadoras', 'fundadoras', index, 'role', e.target.value)}
+                    />
+                    <TextField
+                      label="URL de la Imagen"
+                      fullWidth
+                      value={fundadora.image || ''}
+                      onChange={(e) => updateArrayItem('fundadoras', 'fundadoras', index, 'image', e.target.value)}
+                      helperText="Ruta de la imagen de la fundadora (ej: /images/fundadoras/nombre.jpg)"
+                      placeholder="/images/fundadoras/nombre.jpg"
+                    />
+                  </Stack>
+                </Paper>
+              ))}
+              
+              <Button
+                variant="outlined"
+                startIcon={<AddIcon />}
+                onClick={() =>
+                  addArrayItem('fundadoras', 'fundadoras', { name: '', role: '', image: '' })
+                }
+              >
+                Agregar Fundadora
+              </Button>
+              
+              <Button
+                variant="contained"
+                startIcon={<SaveIcon />}
+                onClick={() => handleSave('fundadoras', sections.fundadoras)}
+                disabled={saving}
+                sx={{
+                  background: 'linear-gradient(120deg, #9f3876, #bd1d82)',
+                  fontWeight: 700,
+                  alignSelf: 'flex-start',
+                }}
+              >
+                {saving ? 'Guardando...' : 'Guardar Cambios'}
+              </Button>
+            </Stack>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Tab 3: Misión y Visión */}
+      {activeTab === 3 && (!sections.mision || !sections.vision) && (
         <Alert severity="info">No se encontraron las secciones Misión y Visión. Ejecuta las migraciones.</Alert>
       )}
-      {activeTab === 2 && sections.mision && sections.vision && (
+      {activeTab === 3 && sections.mision && sections.vision && (
         <Stack spacing={3}>
           <Card component={motion.div} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             <CardContent sx={{ p: 4 }}>
@@ -413,11 +516,11 @@ const AdminSections = () => {
         </Stack>
       )}
 
-      {/* Tab 3: Servicios */}
-      {activeTab === 3 && !sections.servicios && (
+      {/* Tab 4: Servicios */}
+      {activeTab === 4 && !sections.servicios && (
         <Alert severity="info">No se encontró la sección Servicios. Ejecuta las migraciones.</Alert>
       )}
-      {activeTab === 3 && sections.servicios && (
+      {activeTab === 4 && sections.servicios && (
         <Card component={motion.div} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
           <CardContent sx={{ p: 4 }}>
             <Typography variant="h5" fontWeight={700} gutterBottom>
