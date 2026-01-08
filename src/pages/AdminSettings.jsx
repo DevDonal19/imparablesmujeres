@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   Box,
   Button,
@@ -15,6 +15,7 @@ import {
   FormControlLabel,
   Avatar,
   Chip,
+  CircularProgress,
 } from '@mui/material';
 import { motion } from 'framer-motion';
 import SettingsIcon from '@mui/icons-material/Settings';
@@ -23,9 +24,14 @@ import EmailIcon from '@mui/icons-material/Email';
 import LanguageIcon from '@mui/icons-material/Language';
 import PaletteIcon from '@mui/icons-material/Palette';
 import NotificationsIcon from '@mui/icons-material/Notifications';
+import useLocalStorage from '../hooks/useLocalStorage';
+import { useSiteSettings } from '../context/SiteSettingsContext.jsx';
+import { updateSiteSettings } from '../services/api.js';
 
 const AdminSettings = () => {
-  const [settings, setSettings] = useState({
+  const { settings: currentSettings, loading: settingsLoading, error: loadError, refresh } = useSiteSettings();
+  const [auth] = useLocalStorage('imparables-auth', null);
+  const initialState = {
     siteName: 'Imparables',
     siteDescription: 'Mujeres que transforman el mundo desde el Pacífico colombiano',
     contactEmail: 'contacto@imparables.com',
@@ -37,24 +43,113 @@ const AdminSettings = () => {
     enableNewsletter: true,
     enableNotifications: true,
     maintenanceMode: false,
-  });
-  const [loading, setLoading] = useState(false);
+    siteVersion: 'v1.0.0',
+    siteStatus: 'active',
+  };
+  const [formValues, setFormValues] = useState(initialState);
+  const [saving, setSaving] = useState(false);
   const [feedback, setFeedback] = useState({ open: false, message: '', severity: 'success' });
+
+  useEffect(() => {
+    if (currentSettings) {
+      setFormValues({
+        siteName: currentSettings.siteName,
+        siteDescription: currentSettings.siteDescription,
+        contactEmail: currentSettings.contactEmail,
+        socialFacebook: currentSettings.socialFacebook,
+        socialInstagram: currentSettings.socialInstagram,
+        socialTiktok: currentSettings.socialTiktok,
+        socialWhatsapp: currentSettings.socialWhatsapp,
+        enableComments: currentSettings.enableComments,
+        enableNewsletter: currentSettings.enableNewsletter,
+        enableNotifications: currentSettings.enableNotifications,
+        maintenanceMode: currentSettings.maintenanceMode,
+        siteVersion: currentSettings.siteVersion,
+        siteStatus: currentSettings.siteStatus,
+      });
+    }
+  }, [currentSettings]);
+
+  const handleChange = (field) => (event) => {
+    const value = event.target.value;
+    setFormValues((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const handleToggle = (field) => (event) => {
+    const checked = event.target.checked;
+    setFormValues((prev) => ({
+      ...prev,
+      [field]: checked,
+      ...(field === 'maintenanceMode'
+        ? { siteStatus: checked ? 'maintenance' : 'active' }
+        : {}),
+    }));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    
-    // Simular guardado (aquí conectarías con tu API)
-    setTimeout(() => {
+    if (!auth?.token) {
+      setFeedback({
+        open: true,
+        message: 'Tu sesión expiró. Inicia sesión nuevamente para guardar cambios.',
+        severity: 'error',
+      });
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const payload = {
+        ...formValues,
+        siteStatus: formValues.maintenanceMode ? 'maintenance' : 'active',
+        siteVersion: formValues.siteVersion || 'v1.0.0',
+      };
+      await updateSiteSettings(payload, auth.token);
       setFeedback({
         open: true,
         message: 'Configuración guardada exitosamente',
         severity: 'success',
       });
-      setLoading(false);
-    }, 1000);
+      refresh();
+    } catch (err) {
+      console.error('Error guardando configuración:', err);
+      setFeedback({
+        open: true,
+        message: err.message || 'No se pudo guardar la configuración',
+        severity: 'error',
+      });
+    } finally {
+      setSaving(false);
+    }
   };
+
+  const lastUpdatedLabel = useMemo(() => {
+    if (!currentSettings?.updatedAt) return 'Sin cambios';
+    return new Date(currentSettings.updatedAt).toLocaleDateString('es-CO', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    });
+  }, [currentSettings?.updatedAt]);
+
+  if (settingsLoading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '40vh' }}>
+        <CircularProgress color="secondary" />
+      </Box>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <Alert severity="error">
+        {loadError}
+      </Alert>
+    );
+  }
 
   const SettingSection = ({ title, icon, children }) => (
     <Card
@@ -99,23 +194,23 @@ const AdminSettings = () => {
                 <TextField
                   label="Nombre del Sitio"
                   fullWidth
-                  value={settings.siteName}
-                  onChange={(e) => setSettings({ ...settings, siteName: e.target.value })}
+                  value={formValues.siteName}
+                  onChange={handleChange('siteName')}
                 />
                 <TextField
                   label="Descripción del Sitio"
                   fullWidth
                   multiline
                   rows={3}
-                  value={settings.siteDescription}
-                  onChange={(e) => setSettings({ ...settings, siteDescription: e.target.value })}
+                  value={formValues.siteDescription}
+                  onChange={handleChange('siteDescription')}
                 />
                 <TextField
                   label="Email de Contacto"
                   type="email"
                   fullWidth
-                  value={settings.contactEmail}
-                  onChange={(e) => setSettings({ ...settings, contactEmail: e.target.value })}
+                  value={formValues.contactEmail}
+                  onChange={handleChange('contactEmail')}
                 />
               </Stack>
             </SettingSection>
@@ -126,29 +221,29 @@ const AdminSettings = () => {
                 <TextField
                   label="Facebook"
                   fullWidth
-                  value={settings.socialFacebook}
-                  onChange={(e) => setSettings({ ...settings, socialFacebook: e.target.value })}
+                  value={formValues.socialFacebook}
+                  onChange={handleChange('socialFacebook')}
                   placeholder="https://facebook.com/tu-pagina"
                 />
                 <TextField
                   label="Instagram"
                   fullWidth
-                  value={settings.socialInstagram}
-                  onChange={(e) => setSettings({ ...settings, socialInstagram: e.target.value })}
+                  value={formValues.socialInstagram}
+                  onChange={handleChange('socialInstagram')}
                   placeholder="https://instagram.com/tu-cuenta"
                 />
                 <TextField
                   label="TikTok"
                   fullWidth
-                  value={settings.socialTiktok}
-                  onChange={(e) => setSettings({ ...settings, socialTiktok: e.target.value })}
+                  value={formValues.socialTiktok}
+                  onChange={handleChange('socialTiktok')}
                   placeholder="https://tiktok.com/@tu-cuenta"
                 />
                 <TextField
                   label="WhatsApp"
                   fullWidth
-                  value={settings.socialWhatsapp}
-                  onChange={(e) => setSettings({ ...settings, socialWhatsapp: e.target.value })}
+                  value={formValues.socialWhatsapp}
+                  onChange={handleChange('socialWhatsapp')}
                   placeholder="https://wa.me/573000000000"
                 />
               </Stack>
@@ -160,8 +255,8 @@ const AdminSettings = () => {
                 <FormControlLabel
                   control={
                     <Switch
-                      checked={settings.enableComments}
-                      onChange={(e) => setSettings({ ...settings, enableComments: e.target.checked })}
+                      checked={formValues.enableComments}
+                      onChange={handleToggle('enableComments')}
                       color="primary"
                     />
                   }
@@ -178,8 +273,8 @@ const AdminSettings = () => {
                 <FormControlLabel
                   control={
                     <Switch
-                      checked={settings.enableNewsletter}
-                      onChange={(e) => setSettings({ ...settings, enableNewsletter: e.target.checked })}
+                      checked={formValues.enableNewsletter}
+                      onChange={handleToggle('enableNewsletter')}
                       color="primary"
                     />
                   }
@@ -196,8 +291,8 @@ const AdminSettings = () => {
                 <FormControlLabel
                   control={
                     <Switch
-                      checked={settings.enableNotifications}
-                      onChange={(e) => setSettings({ ...settings, enableNotifications: e.target.checked })}
+                      checked={formValues.enableNotifications}
+                      onChange={handleToggle('enableNotifications')}
                       color="primary"
                     />
                   }
@@ -247,8 +342,8 @@ const AdminSettings = () => {
                         Estado del Sitio
                       </Typography>
                       <Chip
-                        label={settings.maintenanceMode ? 'Mantenimiento' : 'Activo'}
-                        color={settings.maintenanceMode ? 'warning' : 'success'}
+                        label={formValues.maintenanceMode ? 'Mantenimiento' : 'Activo'}
+                        color={formValues.maintenanceMode ? 'warning' : 'success'}
                         sx={{ fontWeight: 700 }}
                       />
                     </Box>
@@ -258,7 +353,7 @@ const AdminSettings = () => {
                         Versión
                       </Typography>
                       <Typography variant="body1" fontWeight={600}>
-                        v1.0.0
+                        {formValues.siteVersion || 'v1.0.0'}
                       </Typography>
                     </Box>
 
@@ -267,7 +362,7 @@ const AdminSettings = () => {
                         Última actualización
                       </Typography>
                       <Typography variant="body1" fontWeight={600}>
-                        {new Date().toLocaleDateString('es-CO')}
+                        {lastUpdatedLabel}
                       </Typography>
                     </Box>
                   </Stack>
@@ -277,8 +372,8 @@ const AdminSettings = () => {
                   <FormControlLabel
                     control={
                       <Switch
-                        checked={settings.maintenanceMode}
-                        onChange={(e) => setSettings({ ...settings, maintenanceMode: e.target.checked })}
+                        checked={formValues.maintenanceMode}
+                        onChange={handleToggle('maintenanceMode')}
                         color="warning"
                       />
                     }
@@ -292,7 +387,7 @@ const AdminSettings = () => {
                     }
                   />
 
-                  {settings.maintenanceMode && (
+                  {formValues.maintenanceMode && (
                     <Alert severity="warning">
                       El sitio está en modo mantenimiento. Los visitantes verán un mensaje de mantenimiento.
                     </Alert>
@@ -307,7 +402,7 @@ const AdminSettings = () => {
               variant="contained"
               size="large"
               fullWidth
-              disabled={loading}
+              disabled={saving}
               startIcon={<SaveIcon />}
               sx={{
                 mt: 3,
@@ -316,7 +411,7 @@ const AdminSettings = () => {
                 py: 1.5,
               }}
             >
-              {loading ? 'Guardando...' : 'Guardar Configuración'}
+              {saving ? 'Guardando...' : 'Guardar Configuración'}
             </Button>
           </Grid>
         </Grid>

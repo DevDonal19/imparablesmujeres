@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
   Alert,
   Box,
@@ -21,17 +21,30 @@ import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import EmailIcon from '@mui/icons-material/Email';
 import SendIcon from '@mui/icons-material/Send';
 import { apiFetch } from '../utils/api';
-
-const socialLinks = [
-  { label: 'Facebook', icon: <FacebookIcon />, href: 'https://facebook.com', color: '#1877F2' },
-  { label: 'Instagram', icon: <InstagramIcon />, href: 'https://instagram.com', color: '#E1306C' },
-  { label: 'TikTok', icon: <MusicNoteIcon />, href: 'https://tiktok.com', color: '#010101' },
-  { label: 'WhatsApp', icon: <WhatsAppIcon />, href: 'https://wa.me/573000000000', color: '#25D366' },
-];
+import { useSiteSettings } from '../context/SiteSettingsContext.jsx';
 
 const Contacto = () => {
   const [form, setForm] = useState({ nombre: '', correo: '', mensaje: '' });
   const [snackbar, setSnackbar] = useState({ open: false, message: '' });
+  const { settings } = useSiteSettings();
+
+  const socialLinks = useMemo(() => {
+    const defaultLinks = [
+      { label: 'Facebook', key: 'socialFacebook', icon: <FacebookIcon />, color: '#1877F2' },
+      { label: 'Instagram', key: 'socialInstagram', icon: <InstagramIcon />, color: '#E1306C' },
+      { label: 'TikTok', key: 'socialTiktok', icon: <MusicNoteIcon />, color: '#010101' },
+      { label: 'WhatsApp', key: 'socialWhatsapp', icon: <WhatsAppIcon />, color: '#25D366' },
+    ];
+
+    return defaultLinks
+      .map((link) => ({
+        ...link,
+        href: settings?.[link.key] || '',
+      }))
+      .filter((link) => Boolean(link.href));
+  }, [settings]);
+
+  const contactEmail = settings?.contactEmail || 'contacto@imparables.com';
 
   const handleChange = (field) => (event) => {
     setForm((prev) => ({ ...prev, [field]: event.target.value }));
@@ -121,8 +134,11 @@ const Contacto = () => {
                     </Typography>
                   </Stack>
                   <Typography color="text.secondary" sx={{ fontSize: '1.05rem', lineHeight: 1.7 }}>
-                    Estamos listas para acompañar tus procesos comunitarios, institucionales o personales. Completa el
-                    formulario y nos contactaremos contigo.
+                    Estamos listas para acompañar tus procesos comunitarios, institucionales o personales. Escríbenos a{' '}
+                    <Box component="span" sx={{ fontWeight: 700, color: 'primary.main' }}>
+                      {contactEmail}
+                    </Box>{' '}
+                    o completa el formulario y nos pondremos en contacto contigo.
                   </Typography>
                 </Box>
 
@@ -131,6 +147,9 @@ const Contacto = () => {
                     Síguenos en redes sociales
                   </Typography>
                   <Stack direction="row" spacing={2} flexWrap="wrap" aria-label="Redes sociales" sx={{ mt: 2 }}>
+                    {socialLinks.length === 0 && (
+                      <Typography color="text.secondary">Pronto compartiremos nuestras redes.</Typography>
+                    )}
                     {socialLinks.map((social) => (
                       <IconButton
                         key={social.label}

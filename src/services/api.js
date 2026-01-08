@@ -87,3 +87,15 @@ export const deletePost = (id, token) =>
       Authorization: `Bearer ${token}`,
     },
   })).then(handleResponse);
+
+export const getSiteSettings = () =>
+  fetch(`${API_BASE_URL}/settings`).then(handleResponse);
+
+export const updateSiteSettings = (payload, token) =>
+  fetch(`${API_BASE_URL}/settings`, buildOptions({
+    method: 'PUT',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(payload),
+  })).then(handleResponse);

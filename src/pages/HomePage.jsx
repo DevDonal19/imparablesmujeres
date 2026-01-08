@@ -35,6 +35,8 @@ import Servicios from '../components/Servicios';
 import Muro from '../components/Muro';
 import BlogPublic from '../components/BlogPublic';
 import Contacto from '../components/Contacto';
+import { useSiteSettings } from '../context/SiteSettingsContext.jsx';
+import { Alert } from '@mui/material';
 
 const navLinks = [
   { label: 'Inicio', href: '#inicio' },
@@ -64,6 +66,11 @@ const HomePage = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [auth, setAuth] = useLocalStorage('imparables-auth', null);
   const navigate = useNavigate();
+  const { settings } = useSiteSettings();
+
+  const siteName = settings?.siteName || 'Imparables';
+  const siteDescription = settings?.siteDescription || 'Mujeres que transforman el mundo desde el Pacífico colombiano';
+  const maintenanceMode = Boolean(settings?.maintenanceMode);
 
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -150,22 +157,30 @@ const HomePage = () => {
         }}
       >
         <Toolbar sx={{ justifyContent: 'space-between', minHeight: { xs: 56, sm: 60, md: 64 }, py: 1 }}>
-          <Box
-            component="img"
-            src="/images/imparable_logo.png"
-            alt="Imparables"
-            sx={{
-              height: { xs: 40, sm: 50, md: 60, lg: 70 },
-              width: 'auto',
-              maxWidth: { xs: '150px', sm: '200px', md: '250px', lg: '300px' },
-              cursor: 'pointer',
-              transition: 'all 0.3s ease',
-              '&:hover': {
-                transform: 'scale(1.02)',
-              },
-            }}
-            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          />
+          <Stack direction="row" spacing={2} alignItems="center">
+            <Box
+              component="img"
+              src="/images/imparable_logo.png"
+              alt={siteName}
+              sx={{
+                height: { xs: 40, sm: 50, md: 60, lg: 70 },
+                width: 'auto',
+                maxWidth: { xs: '150px', sm: '200px', md: '250px', lg: '300px' },
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                '&:hover': {
+                  transform: 'scale(1.02)',
+                },
+              }}
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            />
+            <Typography
+              variant="subtitle2"
+              sx={{ display: { xs: 'none', lg: 'block' }, fontWeight: 600, color: 'text.secondary' }}
+            >
+              {siteDescription}
+            </Typography>
+          </Stack>
           <Stack spacing={2} direction="row" alignItems="center" sx={{ display: { xs: 'none', md: 'flex' } }}>
             {menu}
             {auth?.token ? (
@@ -237,6 +252,11 @@ const HomePage = () => {
       <Toolbar id="back-to-top-anchor" />
 
       <main>
+        {maintenanceMode && (
+          <Alert severity="warning" sx={{ borderRadius: 0, textAlign: 'center' }}>
+            Estamos en modo mantenimiento. Algunas secciones pueden no estar disponibles temporalmente.
+          </Alert>
+        )}
         <Hero />
         <Container maxWidth="lg">
           <Historia />
@@ -266,7 +286,7 @@ const HomePage = () => {
           }}
         />
         <Typography variant="body1" fontWeight={600}>
-          Mujeres que transforman el mundo desde el Pacífico colombiano
+          {siteDescription}
         </Typography>
         <Typography variant="body2" color="rgba(255,255,255,0.7)">
           © {new Date().getFullYear()} Imparables. Todas las voces, todos los territorios.

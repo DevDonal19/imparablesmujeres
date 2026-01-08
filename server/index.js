@@ -14,6 +14,7 @@ import reactionsRoutes from './routes/reactions.js';
 import categoriesRoutes from './routes/categories.js';
 import sectionsRoutes from './routes/sections.js';
 import testimonialsRoutes from './routes/testimonials.js';
+import settingsRoutes from './routes/settings.js';
 import { bootstrapAdmin } from './utils/bootstrap.js';
 
 /**
@@ -83,6 +84,7 @@ app.use('/api/reactions', reactionsRoutes);
 app.use('/api/categories', categoriesRoutes);
 app.use('/api/sections', sectionsRoutes);
 app.use('/api/testimonials', testimonialsRoutes);
+app.use('/api/settings', settingsRoutes);
 
 /**
  * ============================
