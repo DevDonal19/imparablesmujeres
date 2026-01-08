@@ -91,11 +91,15 @@ app.use('/api/settings', settingsRoutes);
  * SERVIR FRONTEND (REACT / VITE)
  * ============================
  * dist/ está en la raíz del proyecto
- * Solo en producción (cuando NODE_ENV === 'production')
  */
 const clientDistPath = path.join(__dirname, '..', 'dist');
+const fs = await import('fs');
 
-if (process.env.NODE_ENV === 'production') {
+// Verificar si la carpeta dist existe
+const distExists = fs.existsSync(clientDistPath);
+
+if (distExists) {
+  console.log('✓ Sirviendo archivos estáticos desde:', clientDistPath);
   app.use(express.static(clientDistPath));
 
   /**
@@ -110,6 +114,8 @@ if (process.env.NODE_ENV === 'production') {
 
     res.sendFile(path.join(clientDistPath, 'index.html'));
   });
+} else {
+  console.warn('⚠ Carpeta dist/ no encontrada. El frontend no se servirá.');
 }
 
 /**
